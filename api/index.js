@@ -1,6 +1,6 @@
 const express = require('express')
 const app = express()
-import * as multihash from 'multihashes'
+const multihash = require('multihashes') 
 
 
 const { ethers } = require('ethers')
@@ -23,8 +23,8 @@ const toBase58 = (contentHash) => {
 
 app.get('/api/:id', async (req,res) => {
     let contract = new ethers.Contract(contractAddress, abi, provider)
-    console.log('', req.params.id)
-    const data = contract.tokensData(parseInt(req.params.id))
+    const data = await contract.tokensData(parseInt(req.params.id))
+    console.log(data)
     const metadata = {
         "name": "remix reward #" + req.params.id,
         "description": data.tokenType + ' ' + data.payload,
