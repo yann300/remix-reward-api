@@ -21,7 +21,7 @@ const toBase58 = (contentHash) => {
     return multihash.toB58String(buf);
 }
 
-app.get('/:id', async (req,res) => {
+app.get('/api/:id', async (req,res) => {
     let contract = new ethers.Contract(contractAddress, abi, provider)
     console.log('', req.params.id)
     const data = contract.tokensData(parseInt(req.params.id))

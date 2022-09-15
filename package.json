@@ -1,0 +1,24 @@
+{
+  "name": "remix-reward-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yann300/remix-reward-api.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/yann300/remix-reward-api/issues"
+  },
+  "homepage": "https://github.com/yann300/remix-reward-api#readme",
+  "dependencies": {
+    "ethers": "^5.7.1",
+    "express": "^4.18.1",
+    "multihashes": "^4.0.3"
+  }
+}
