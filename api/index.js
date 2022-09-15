@@ -37,6 +37,9 @@ app.listen(process.env.PORT || 8081, async () => {
     console.log("listening...")
 })
 
+// Export the Express API
+module.exports = app;
+
 const abi = [
     {
         "inputs": [],
