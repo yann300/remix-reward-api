@@ -12,6 +12,7 @@ let provider = new ethers.providers.StaticJsonRpcProvider('https://opt-mainnet.g
 const contractAddress = '0x5d470270e889b61c08C51784cDC73442c4554011'
 
 app.use(express.json())
+// fs.mkdir('./tmp', console.log)
 
 app.get('/', (req,res) => {
     res.status(200).json({})
@@ -36,12 +37,16 @@ const download = (url, dest, cb) => {
     });
   };
 
+app.get('/badge/:filename', async (req, res) => {
+    res.sendFile('/tmp/' + req.params.filename)
+})
+
 app.get('/api/:id', async (req,res) => {
     let contract = new ethers.Contract(contractAddress, abi, provider)
     const data = await contract.tokensData(parseInt(req.params.id))
     console.log(data)
     const fileName = 'badge_' + req.params.id + '.png'
-    download('https://ipfs-cluster.ethdevops.io/ipfs/' + toBase58(data.hash), './' + fileName, (error, result) => {
+    download('https://ipfs-cluster.ethdevops.io/ipfs/' + toBase58(data.hash), '/tmp/' + fileName, (error, result) => {
         console.log(error, result)
         if (error) {
             res.status(200).json({ error })
@@ -49,7 +54,7 @@ app.get('/api/:id', async (req,res) => {
             const metadata = {
                 "name": "remix reward #" + req.params.id,
                 "description": data.tokenType + ' ' + data.payload,
-                "image": 'https://remix-reward-api.vercel.app/' + fileName
+                "image": 'https://remix-reward-api.vercel.app/badge/' + fileName
             }
             res.status(200).json(metadata)
         }
