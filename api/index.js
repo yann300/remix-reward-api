@@ -1,6 +1,8 @@
 const express = require('express')
 const app = express()
 const multihash = require('multihashes') 
+var https = require('https')
+var fs = require('fs')
 
 
 const { ethers } = require('ethers')
@@ -21,16 +23,37 @@ const toBase58 = (contentHash) => {
     return multihash.toB58String(buf);
 }
 
+const download = (url, dest, cb) => {
+    var file = fs.createWriteStream(dest);
+    var request = https.get(url, function(response) {
+      response.pipe(file);
+      file.on('finish', function() {
+        file.close(cb);  // close() is async, call cb after close completes.
+      });
+    }).on('error', function(err) { // Handle errors
+      fs.unlink(dest); // Delete the file async. (But we don't check the result)
+      if (cb) cb(err.message);
+    });
+  };
+
 app.get('/api/:id', async (req,res) => {
     let contract = new ethers.Contract(contractAddress, abi, provider)
     const data = await contract.tokensData(parseInt(req.params.id))
     console.log(data)
-    const metadata = {
-        "name": "remix reward #" + req.params.id,
-        "description": data.tokenType + ' ' + data.payload,
-        "image": 'https://ipfs-cluster.ethdevops.io/ipfs/' + toBase58(data.hash)
-    }
-    res.status(200).json(metadata)
+    const fileName = 'badge_' + req.params.id + '.png'
+    download('https://ipfs-cluster.ethdevops.io/ipfs/' + toBase58(data.hash), './' + fileName, (error, result) => {
+        console.log(error, result)
+        if (error) {
+            res.status(200).json({ error })
+        } else {
+            const metadata = {
+                "name": "remix reward #" + req.params.id,
+                "description": data.tokenType + ' ' + data.payload,
+                "image": 'https://remix-reward-api.vercel.app/' + fileName
+            }
+            res.status(200).json(metadata)
+        }
+    })
 })
 
 app.listen(process.env.PORT || 8081, async () => {
