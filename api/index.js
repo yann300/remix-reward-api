@@ -41,16 +41,21 @@ app.get('/badge/:filename', async (req, res) => {
     res.sendFile('/tmp/' + req.params.filename)
 })
 
+const fileHashOverrides = {
+    'Remixer': 'remixer.png',
+    'Devconnector': 'devconnect_ams.png'
+}
 app.get('/api/:id', async (req,res) => {
     let contract = new ethers.Contract(contractAddress, abi, provider)
     const data = await contract.tokensData(parseInt(req.params.id))
     console.log(data)
-    const fileName = 'badge_' + req.params.id + '.png'
+    let fileName = 'badge_' + req.params.id + '.png'
     download('https://ipfs-cluster.ethdevops.io/ipfs/' + toBase58(data.hash), '/tmp/' + fileName, (error, result) => {
-        console.log(error, result)
+        console.log('download', error, result)
         if (error) {
             res.status(200).json({ error })
         } else {
+            if (fileHashOverrides[data.tokenType]) fileName = fileHashOverrides[data.tokenType]
             const metadata = {
                 "name": "remix reward #" + req.params.id,
                 "description": data.tokenType + ' ' + data.payload,
@@ -63,6 +68,16 @@ app.get('/api/:id', async (req,res) => {
 
 app.listen(process.env.PORT || 8081, async () => {
     console.log("listening...")
+})
+
+// download the compressed remixer file
+download('https://ipfs-cluster.ethdevops.io/ipfs/QmYbt5paBZiy2h4TVV8qHrLodiyqMBeeJXmNJUWyRdrh2D', '/tmp/remixer.png', (error, result) => {
+    console.log('remixer download', error, result)
+})
+
+// download the compressed remixer file
+download('https://ipfs-cluster.ethdevops.io/ipfs/QmUaaQWp49LHDdCwzirMdxYbuki6eY9TBPZVvU7ZcQcJKE', '/tmp/devconnect_ams.png', (error, result) => {
+    console.log('devconnect_ams download', error, result)
 })
 
 // Export the Express API
