@@ -60,7 +60,15 @@ app.get('/api/:id', async (req,res) => {
                 "name": "remix reward #" + req.params.id,
                 "description": data.tokenType + ' ' + data.payload,
                 "image": 'https://remix-reward-api.vercel.app/badge/' + fileName,
-                "attributes": [data.tokenType, data.tokenType + ' ' + data.payload]
+                "attributes": [
+                    {
+                		"trait_type": "type",
+                		"value": data.tokenType
+                	},{
+                		"trait_type": "full_type",
+                		"value": data.tokenType + ' ' + data.payload
+                	},
+                ]
             }
             res.status(200).json(metadata)
         }
