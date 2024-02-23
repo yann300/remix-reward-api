@@ -75,13 +75,13 @@ const apiEndpoint = async (contractAddress, provider, req, res) => {
 app.get('/api/:id', async (req,res) => {
     // default is Optimism
     let provider = new ethers.providers.StaticJsonRpcProvider('https://opt-mainnet.g.alchemy.com/v2/cdGnPX6sQLXv-YWkbzYAXnTVVfuL8fhb')
-    apiEndpoint('0x5d470270e889b61c08C51784cDC73442c4554011', provider, req, res)
+    await apiEndpoint('0x5d470270e889b61c08C51784cDC73442c4554011', provider, req, res)
 })
 
 app.get('/api-scroll/:id', async (req,res) => {
     // Scroll network
     let provider = new ethers.providers.StaticJsonRpcProvider('https://scroll-mainnet.chainstacklabs.com')
-    apiEndpoint('0x2bC16Bf30435fd9B3A3E73Eb759176C77c28308D', provider, req, res)
+    await apiEndpoint('0x2bC16Bf30435fd9B3A3E73Eb759176C77c28308D', provider, req, res)
 })
 
 app.listen(process.env.PORT || 8081, async () => {
