@@ -45,7 +45,10 @@ const fileHashOverrides = {
 }
 
 const apiEndpoint = async (contractAddress, provider, req, res) => {
-    if (cache[contractAddress + '_' + req.params.id]) return cache[contractAddress + '_' + req.params.id]
+    if (cache[contractAddress + '_' + req.params.id]) {
+        res.status(200).json(cache[contractAddress + '_' + req.params.id])
+        return 
+    }
     
     let contract = new ethers.Contract(contractAddress, abi, provider)
     const data = await contract.tokensData(parseInt(req.params.id))
