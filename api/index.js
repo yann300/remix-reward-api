@@ -20,6 +20,8 @@ const toBase58 = (contentHash) => {
     return multihash.toB58String(buf);
 }
 
+const cache = {}
+
 const download = (url, dest, cb) => {
     var file = fs.createWriteStream(dest);
     var request = https.get(url, function(response) {
@@ -43,6 +45,8 @@ const fileHashOverrides = {
 }
 
 const apiEndpoint = async (contractAddress, provider, req, res) => {
+    if (cache[contractAddress + '_' + req.params.id]) return cache[contractAddress + '_' + req.params.id]
+    
     let contract = new ethers.Contract(contractAddress, abi, provider)
     const data = await contract.tokensData(parseInt(req.params.id))
     console.log(data)
@@ -57,6 +61,7 @@ const apiEndpoint = async (contractAddress, provider, req, res) => {
                 "name": "remix reward #" + req.params.id,
                 "description": data.tokenType + ' ' + data.payload,
                 "image": 'https://remix-reward-api.vercel.app/badge/' + fileName,
+                "data": data,
                 "attributes": [
                     {
                 		"trait_type": "type",
@@ -67,6 +72,7 @@ const apiEndpoint = async (contractAddress, provider, req, res) => {
                 	},
                 ]
             }
+            cache[contractAddress + '_' + req.params.id] = metadata
             res.status(200).json(metadata)
         }
     })
