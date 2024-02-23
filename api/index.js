@@ -44,7 +44,7 @@ const fileHashOverrides = {
     'Devconnector': 'devconnect_ams.png'
 }
 
-const apiEndpoint = async (contractAddress, provider, req, res) => {
+const apiEndpoint = async (chain, contractAddress, provider, req, res) => {
     if (cache[contractAddress + '_' + req.params.id]) {
         res.status(200).json(cache[contractAddress + '_' + req.params.id])
         return 
@@ -61,7 +61,7 @@ const apiEndpoint = async (contractAddress, provider, req, res) => {
         } else {
             if (fileHashOverrides[data.tokenType]) fileName = fileHashOverrides[data.tokenType]
             const metadata = {
-                "name": "remix reward #" + req.params.id,
+                "name": "remix reward #" + req.params.id + " on #" + chain,
                 "description": data.tokenType + ' ' + data.payload,
                 "image": 'https://remix-reward-api.vercel.app/badge/' + fileName,
                 "data": data,
@@ -84,14 +84,22 @@ const apiEndpoint = async (contractAddress, provider, req, res) => {
 app.get('/api/:id', async (req,res) => {
     // default is Optimism
     let provider = new ethers.providers.StaticJsonRpcProvider('https://opt-mainnet.g.alchemy.com/v2/cdGnPX6sQLXv-YWkbzYAXnTVVfuL8fhb')
-    await apiEndpoint('0x5d470270e889b61c08C51784cDC73442c4554011', provider, req, res)
+    await apiEndpoint('optimism', '0x5d470270e889b61c08C51784cDC73442c4554011', provider, req, res)
+})
+
+app.get('/api-optimism/:id', async (req,res) => {
+    // default is Optimism
+    let provider = new ethers.providers.StaticJsonRpcProvider('https://opt-mainnet.g.alchemy.com/v2/cdGnPX6sQLXv-YWkbzYAXnTVVfuL8fhb')
+    await apiEndpoint('optimism', '0x5d470270e889b61c08C51784cDC73442c4554011', provider, req, res)
 })
 
 app.get('/api-scroll/:id', async (req,res) => {
     // Scroll network
     let provider = new ethers.providers.StaticJsonRpcProvider('https://scroll-mainnet.chainstacklabs.com')
-    await apiEndpoint('0x2bC16Bf30435fd9B3A3E73Eb759176C77c28308D', provider, req, res)
+    await apiEndpoint('scroll', '0x2bC16Bf30435fd9B3A3E73Eb759176C77c28308D', provider, req, res)
 })
+
+
 
 app.listen(process.env.PORT || 8081, async () => {
     console.log("listening...")
