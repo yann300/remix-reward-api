@@ -42,7 +42,7 @@ const fileHashOverrides = {
     'Devconnector': 'devconnect_ams.png'
 }
 
-const apiEndpoint = (contractAddress, provider) => {
+const apiEndpoint = async (contractAddress, provider) => {
     let contract = new ethers.Contract(contractAddress, abi, provider)
     const data = await contract.tokensData(parseInt(req.params.id))
     console.log(data)
