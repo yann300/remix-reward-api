@@ -46,7 +46,7 @@ const apiEndpoint = async (contractAddress, provider, req, res) => {
     let contract = new ethers.Contract(contractAddress, abi, provider)
     const data = await contract.tokensData(parseInt(req.params.id))
     console.log(data)
-    let fileName = 'badge_' + req.params.id + '.png'
+    let fileName = 'badge_' + contractAddress + '_' + req.params.id + '.png'
     download('https://ipfs-cluster.ethdevops.io/ipfs/' + toBase58(data.hash), '/tmp/' + fileName, (error, result) => {
         console.log('download', error, result)
         if (error) {
