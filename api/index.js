@@ -7,10 +7,6 @@ var fs = require('fs')
 
 const { ethers } = require('ethers')
 
-let provider = new ethers.providers.StaticJsonRpcProvider('https://opt-mainnet.g.alchemy.com/v2/cdGnPX6sQLXv-YWkbzYAXnTVVfuL8fhb')
-
-const contractAddress = '0x5d470270e889b61c08C51784cDC73442c4554011'
-
 app.use(express.json())
 // fs.mkdir('./tmp', console.log)
 
@@ -45,11 +41,12 @@ const fileHashOverrides = {
     'Remixer': 'remixer.png',
     'Devconnector': 'devconnect_ams.png'
 }
-app.get('/api/:id', async (req,res) => {
+
+const apiEndpoint = async (contractAddress, provider, req, res) => {
     let contract = new ethers.Contract(contractAddress, abi, provider)
     const data = await contract.tokensData(parseInt(req.params.id))
     console.log(data)
-    let fileName = 'badge_' + req.params.id + '.png'
+    let fileName = 'badge_' + contractAddress + '_' + req.params.id + '.png'
     download('https://ipfs-cluster.ethdevops.io/ipfs/' + toBase58(data.hash), '/tmp/' + fileName, (error, result) => {
         console.log('download', error, result)
         if (error) {
@@ -73,6 +70,18 @@ app.get('/api/:id', async (req,res) => {
             res.status(200).json(metadata)
         }
     })
+}
+
+app.get('/api/:id', async (req,res) => {
+    // default is Optimism
+    let provider = new ethers.providers.StaticJsonRpcProvider('https://opt-mainnet.g.alchemy.com/v2/cdGnPX6sQLXv-YWkbzYAXnTVVfuL8fhb')
+    await apiEndpoint('0x5d470270e889b61c08C51784cDC73442c4554011', provider, req, res)
+})
+
+app.get('/api-scroll/:id', async (req,res) => {
+    // Scroll network
+    let provider = new ethers.providers.StaticJsonRpcProvider('https://scroll-mainnet.chainstacklabs.com')
+    await apiEndpoint('0x2bC16Bf30435fd9B3A3E73Eb759176C77c28308D', provider, req, res)
 })
 
 app.listen(process.env.PORT || 8081, async () => {
