@@ -40,6 +40,19 @@ app.get('/badge/:filename', cors(), async (req, res) => {
     res.sendFile('/tmp/' + req.params.filename)
 })
 
+const mainnet = new ethers.providers.StaticJsonRpcProvider(
+  'https://mainnet.infura.io/v3/1b3241e53c8d422aab3c7c0e4101de9c',
+)
+app.get('/ens/:address', cors(), asycnc (req, res) => {
+    if (cache[req.params.address] && cache[req.params.address].queried) {
+        res.status(200).json({ name: cache[req.params.address].name })
+        return
+    }
+    const name = mainnet.lookupAddress(req.params.address)
+    cache[req.params.address] = { name, queried: true }
+    res.status(200).json({ name })
+})
+
 const fileHashOverrides = {
     'Remixer': 'remixer.png',
     'Devconnector': 'devconnect_ams.png'
@@ -82,22 +95,21 @@ const apiEndpoint = async (chain, contractAddress, provider, req, res) => {
     })
 }
 
+let OptProvider = new ethers.providers.StaticJsonRpcProvider('https://opt-mainnet.g.alchemy.com/v2/cdGnPX6sQLXv-YWkbzYAXnTVVfuL8fhb')
 app.get('/api/:id', cors(), async (req,res) => {
     // default is Optimism
-    let provider = new ethers.providers.StaticJsonRpcProvider('https://opt-mainnet.g.alchemy.com/v2/cdGnPX6sQLXv-YWkbzYAXnTVVfuL8fhb')
-    await apiEndpoint('optimism', '0x5d470270e889b61c08C51784cDC73442c4554011', provider, req, res)
+    await apiEndpoint('optimism', '0x5d470270e889b61c08C51784cDC73442c4554011', OptProvider, req, res)
 })
 
 app.get('/api-optimism/:id', cors(), async (req,res) => {
     // default is Optimism
-    let provider = new ethers.providers.StaticJsonRpcProvider('https://opt-mainnet.g.alchemy.com/v2/cdGnPX6sQLXv-YWkbzYAXnTVVfuL8fhb')
-    await apiEndpoint('optimism', '0x5d470270e889b61c08C51784cDC73442c4554011', provider, req, res)
+    await apiEndpoint('optimism', '0x5d470270e889b61c08C51784cDC73442c4554011', OptProvider, req, res)
 })
 
+let srollProvider = new ethers.providers.StaticJsonRpcProvider('https://scroll-mainnet.chainstacklabs.com')
 app.get('/api-scroll/:id', cors(), async (req,res) => {
-    // Scroll network
-    let provider = new ethers.providers.StaticJsonRpcProvider('https://scroll-mainnet.chainstacklabs.com')
-    await apiEndpoint('scroll', '0x2bC16Bf30435fd9B3A3E73Eb759176C77c28308D', provider, req, res)
+    // Scroll network    
+    await apiEndpoint('scroll', '0x2bC16Bf30435fd9B3A3E73Eb759176C77c28308D', srollProvider, req, res)
 })
 
 
