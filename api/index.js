@@ -44,12 +44,12 @@ const mainnet = new ethers.providers.StaticJsonRpcProvider(
   'https://mainnet.infura.io/v3/1b3241e53c8d422aab3c7c0e4101de9c',
 )
 app.get('/ens/:address', cors(), async (req, res) => {
-    if (cache[req.params.address] && cache[req.params.address].queried) {
-        res.status(200).json({ name: cache[req.params.address].name })
+    if (cache['ens_' + req.params.address] && cache['ens_' + req.params.address].queried) {
+        res.status(200).json({ name: cache['ens_' + req.params.address].name })
         return
     }
-    const name = mainnet.lookupAddress(req.params.address)
-    cache[req.params.address] = { name, queried: true }
+    const name = await mainnet.lookupAddress(req.params.address)
+    cache['ens_' + req.params.address] = { name, queried: true }
     res.status(200).json({ name })
 })
 
