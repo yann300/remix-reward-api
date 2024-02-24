@@ -8,6 +8,16 @@ var fs = require('fs')
 
 const { ethers } = require('ethers')
 
+const chains = {
+    '0x5d470270e889b61c08C51784cDC73442c4554011': 'optimism',
+    '0x2bC16Bf30435fd9B3A3E73Eb759176C77c28308D': 'scroll'
+}
+
+const providers = {
+    '0x5d470270e889b61c08C51784cDC73442c4554011': new ethers.providers.StaticJsonRpcProvider('https://opt-mainnet.g.alchemy.com/v2/cdGnPX6sQLXv-YWkbzYAXnTVVfuL8fhb'),
+    '0x2bC16Bf30435fd9B3A3E73Eb759176C77c28308D': new ethers.providers.StaticJsonRpcProvider('https://scroll-mainnet.chainstacklabs.com')
+}
+
 app.use(express.json())
 // fs.mkdir('./tmp', console.log)
 
@@ -37,6 +47,9 @@ const download = (url, dest, cb) => {
   };
 
 app.get('/badge/:filename', cors(), async (req, res) => {
+    // badge_0x5d470270e889b61c08C51784cDC73442c4554011_139.png
+    const fileName = req.params.filename.replace('.png', '').replace('badge_', '').split('_')
+    await apiEndpoint(fileName[0], fileName[1])
     res.sendFile('/tmp/' + req.params.filename)
 })
 
@@ -58,24 +71,26 @@ const fileHashOverrides = {
     'Devconnector': 'devconnect_ams.png'
 }
 
-const apiEndpoint = async (chain, contractAddress, provider, req, res) => {
-    if (cache[contractAddress + '_' + req.params.id]) {
-        res.status(200).json(cache[contractAddress + '_' + req.params.id])
+const apiEndpoint = async (contractAddress, id, res) => {
+    chain = chains[contractAddress]
+    provider = providers[contractAddress]
+    if (cache[contractAddress + '_' + id]) {
+        res && res.status(200).json(cache[contractAddress + '_' + id])
         return 
     }
     
     let contract = new ethers.Contract(contractAddress, abi, provider)
-    const data = await contract.tokensData(parseInt(req.params.id))
+    const data = await contract.tokensData(parseInt(id))
     console.log(data)
-    let fileName = 'badge_' + contractAddress + '_' + req.params.id + '.png'
+    let fileName = 'badge_' + contractAddress + '_' + id + '.png'
     download('https://ipfs-cluster.ethdevops.io/ipfs/' + toBase58(data.hash), '/tmp/' + fileName, (error, result) => {
         console.log('download', error, result)
         if (error) {
-            res.status(200).json({ error })
+            res && res.status(200).json({ error })
         } else {
             if (fileHashOverrides[data.tokenType]) fileName = fileHashOverrides[data.tokenType]
             const metadata = {
-                "name": "remix reward #" + req.params.id + " on #" + chain,
+                "name": "remix reward #" + id + " on #" + chain,
                 "description": data.tokenType + ' ' + data.payload,
                 "image": 'https://remix-reward-api.vercel.app/badge/' + fileName,
                 "data": data,
@@ -89,27 +104,25 @@ const apiEndpoint = async (chain, contractAddress, provider, req, res) => {
                 	},
                 ]
             }
-            cache[contractAddress + '_' + req.params.id] = metadata
-            res.status(200).json(metadata)
+            cache[contractAddress + '_' + id] = metadata
+            res && res.status(200).json(metadata)
         }
     })
 }
 
-let OptProvider = new ethers.providers.StaticJsonRpcProvider('https://opt-mainnet.g.alchemy.com/v2/cdGnPX6sQLXv-YWkbzYAXnTVVfuL8fhb')
 app.get('/api/:id', cors(), async (req,res) => {
     // default is Optimism
-    await apiEndpoint('optimism', '0x5d470270e889b61c08C51784cDC73442c4554011', OptProvider, req, res)
+    await apiEndpoint('0x5d470270e889b61c08C51784cDC73442c4554011', req.params.id, res)
 })
 
 app.get('/api-optimism/:id', cors(), async (req,res) => {
     // default is Optimism
-    await apiEndpoint('optimism', '0x5d470270e889b61c08C51784cDC73442c4554011', OptProvider, req, res)
+    await apiEndpoint('0x5d470270e889b61c08C51784cDC73442c4554011', req.params.id, res)
 })
 
-let srollProvider = new ethers.providers.StaticJsonRpcProvider('https://scroll-mainnet.chainstacklabs.com')
 app.get('/api-scroll/:id', cors(), async (req,res) => {
     // Scroll network    
-    await apiEndpoint('scroll', '0x2bC16Bf30435fd9B3A3E73Eb759176C77c28308D', srollProvider, req, res)
+    await apiEndpoint('0x2bC16Bf30435fd9B3A3E73Eb759176C77c28308D', req.params.id, res)
 })
 
 
