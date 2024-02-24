@@ -91,31 +91,29 @@ const apiEndpoint = async (contractAddress, id, res) => {
     const data = await contract.tokensData(parseInt(id))
     console.log(data)
     let fileName = 'badge_' + contractAddress + '_' + id + '.png'
-    await download('https://ipfs-cluster.ethdevops.io/ipfs/' + toBase58(data.hash), '/tmp/' + fileName, (error, result) => {
-        console.log('download', error, result)
-        if (error) {
-            res && res.status(200).json({ error })
-        } else {
-            if (fileHashOverrides[data.tokenType]) fileName = fileHashOverrides[data.tokenType]
-            const metadata = {
-                "name": "remix reward #" + id + " on #" + chain,
-                "description": data.tokenType + ' ' + data.payload,
-                "image": 'https://remix-reward-api.vercel.app/badge/' + fileName,
-                "data": data,
-                "attributes": [
-                    {
-                		"trait_type": "type",
-                		"value": data.tokenType
-                	},{
-                		"trait_type": "full_type",
-                		"value": data.tokenType + ' ' + data.payload
-                	},
-                ]
-            }
-            cache[contractAddress + '_' + id] = metadata
-            res && res.status(200).json(metadata)
-        }
+
+    if (fileHashOverrides[data.tokenType]) fileName = fileHashOverrides[data.tokenType]
+    const metadata = {
+        "name": "remix reward #" + id + " on #" + chain,
+        "description": data.tokenType + ' ' + data.payload,
+        "image": 'https://remix-reward-api.vercel.app/badge/' + fileName,
+        "data": data,
+        "attributes": [
+            {
+                "trait_type": "type",
+                "value": data.tokenType
+            },{
+                "trait_type": "full_type",
+                "value": data.tokenType + ' ' + data.payload
+            },
+        ]
+    }
+    cache[contractAddress + '_' + id] = metadata
+    download('https://ipfs-cluster.ethdevops.io/ipfs/' + toBase58(data.hash), '/tmp/' + fileName, (error, result) => {
+        console.errror(error, result)
     })
+    res && res.status(200).json(metadata)   
+    
 }
 
 app.get('/api/:id', cors(), async (req,res) => {
