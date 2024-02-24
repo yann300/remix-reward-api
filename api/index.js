@@ -110,7 +110,7 @@ const apiEndpoint = async (contractAddress, id, res) => {
     }
     cache[contractAddress + '_' + id] = metadata
     download('https://ipfs-cluster.ethdevops.io/ipfs/' + toBase58(data.hash), '/tmp/' + fileName, (error, result) => {
-        console.errror(error, result)
+        console.error(error, result)
     })
     res && res.status(200).json(metadata)   
     
