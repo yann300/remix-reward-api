@@ -1,5 +1,6 @@
 const express = require('express')
 const app = express()
+var cors = require('cors')
 const multihash = require('multihashes') 
 var https = require('https')
 var fs = require('fs')
@@ -35,7 +36,7 @@ const download = (url, dest, cb) => {
     });
   };
 
-app.get('/badge/:filename', async (req, res) => {
+app.get('/badge/:filename', cors(), async (req, res) => {
     res.sendFile('/tmp/' + req.params.filename)
 })
 
@@ -81,19 +82,19 @@ const apiEndpoint = async (chain, contractAddress, provider, req, res) => {
     })
 }
 
-app.get('/api/:id', async (req,res) => {
+app.get('/api/:id', cors(), async (req,res) => {
     // default is Optimism
     let provider = new ethers.providers.StaticJsonRpcProvider('https://opt-mainnet.g.alchemy.com/v2/cdGnPX6sQLXv-YWkbzYAXnTVVfuL8fhb')
     await apiEndpoint('optimism', '0x5d470270e889b61c08C51784cDC73442c4554011', provider, req, res)
 })
 
-app.get('/api-optimism/:id', async (req,res) => {
+app.get('/api-optimism/:id', cors(), async (req,res) => {
     // default is Optimism
     let provider = new ethers.providers.StaticJsonRpcProvider('https://opt-mainnet.g.alchemy.com/v2/cdGnPX6sQLXv-YWkbzYAXnTVVfuL8fhb')
     await apiEndpoint('optimism', '0x5d470270e889b61c08C51784cDC73442c4554011', provider, req, res)
 })
 
-app.get('/api-scroll/:id', async (req,res) => {
+app.get('/api-scroll/:id', cors(), async (req,res) => {
     // Scroll network
     let provider = new ethers.providers.StaticJsonRpcProvider('https://scroll-mainnet.chainstacklabs.com')
     await apiEndpoint('scroll', '0x2bC16Bf30435fd9B3A3E73Eb759176C77c28308D', provider, req, res)
