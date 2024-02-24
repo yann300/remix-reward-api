@@ -34,16 +34,20 @@ const toBase58 = (contentHash) => {
 const cache = {}
 
 const download = (url, dest, cb) => {
-    var file = fs.createWriteStream(dest);
-    var request = https.get(url, function(response) {
-      response.pipe(file);
-      file.on('finish', function() {
-        file.close(cb);  // close() is async, call cb after close completes.
-      });
-    }).on('error', function(err) { // Handle errors
-      fs.unlink(dest); // Delete the file async. (But we don't check the result)
-      if (cb) cb(err.message);
-    });
+    return new Promise((resolve, reject) => {
+        var file = fs.createWriteStream(dest);
+        var request = https.get(url, function(response) {
+          response.pipe(file);
+          file.on('finish', function() {
+            file.close(cb);  // close() is async, call cb after close completes.
+              resolve()
+          });
+        }).on('error', function(err) { // Handle errors
+          fs.unlink(dest); // Delete the file async. (But we don't check the result)
+          if (cb) cb(err.message);
+          reject(err)
+        });
+    })    
   };
 
 app.get('/badge/:filename', cors(), async (req, res) => {
@@ -83,7 +87,7 @@ const apiEndpoint = async (contractAddress, id, res) => {
     const data = await contract.tokensData(parseInt(id))
     console.log(data)
     let fileName = 'badge_' + contractAddress + '_' + id + '.png'
-    download('https://ipfs-cluster.ethdevops.io/ipfs/' + toBase58(data.hash), '/tmp/' + fileName, (error, result) => {
+    await download('https://ipfs-cluster.ethdevops.io/ipfs/' + toBase58(data.hash), '/tmp/' + fileName, (error, result) => {
         console.log('download', error, result)
         if (error) {
             res && res.status(200).json({ error })
