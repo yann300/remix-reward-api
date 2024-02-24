@@ -138,12 +138,12 @@ app.listen(process.env.PORT || 8081, async () => {
 // download the compressed remixer file
 download('https://ipfs-cluster.ethdevops.io/ipfs/QmYbt5paBZiy2h4TVV8qHrLodiyqMBeeJXmNJUWyRdrh2D', '/tmp/remixer.png', (error, result) => {
     console.log('remixer download', error, result)
-})
+}).catch(console.error).then(console.log)
 
 // download the compressed remixer file
 download('https://ipfs-cluster.ethdevops.io/ipfs/QmUaaQWp49LHDdCwzirMdxYbuki6eY9TBPZVvU7ZcQcJKE', '/tmp/devconnect_ams.png', (error, result) => {
     console.log('devconnect_ams download', error, result)
-})
+}).catch(console.error).then(console.log)
 
 // Export the Express API
 module.exports = app;
