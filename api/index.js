@@ -51,6 +51,10 @@ const download = (url, dest, cb) => {
   };
 
 app.get('/badge/:filename', cors(), async (req, res) => {
+    if (req.params.filename === 'remixer.png' || req.params.filename === 'devconnect_ams.png') {
+        res.sendFile('/tmp/' + req.params.filename)
+        return
+    }
     // badge_0x5d470270e889b61c08C51784cDC73442c4554011_139.png
     const fileName = req.params.filename.replace('.png', '').replace('badge_', '').split('_')
     await apiEndpoint(fileName[0], fileName[1])
