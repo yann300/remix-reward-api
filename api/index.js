@@ -43,7 +43,7 @@ app.get('/badge/:filename', cors(), async (req, res) => {
 const mainnet = new ethers.providers.StaticJsonRpcProvider(
   'https://mainnet.infura.io/v3/1b3241e53c8d422aab3c7c0e4101de9c',
 )
-app.get('/ens/:address', cors(), asycnc (req, res) => {
+app.get('/ens/:address', cors(), async (req, res) => {
     if (cache[req.params.address] && cache[req.params.address].queried) {
         res.status(200).json({ name: cache[req.params.address].name })
         return
