@@ -133,7 +133,9 @@ app.get('/api-scroll/:id', cors(), async (req,res) => {
     await apiEndpoint('0x2bC16Bf30435fd9B3A3E73Eb759176C77c28308D', req.params.id, res)
 })
 
-
+app.get('/cache', cors(), async (req,res) => {
+    res.status(200).json(cache)
+})
 
 app.listen(process.env.PORT || 8081, async () => {
     console.log("listening...")
