@@ -115,7 +115,7 @@ const resolveBadge = async (contractAddress, id, res) => {
         ]
     }
     cache[contractAddress + '_' + id] = metadata
-    await download('https://ipfs-cluster.ethdevops.io/ipfs/' + toBase58(data.hash), '/tmp/' + fileName, (error, result) => {
+    download('https://ipfs-cluster.ethdevops.io/ipfs/' + toBase58(data.hash), '/tmp/' + fileName, (error, result) => {
         console.error(error, result)
     })
     res && res.status(200).json(metadata)    
