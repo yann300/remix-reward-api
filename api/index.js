@@ -168,7 +168,7 @@ const init = async  () => {
     console.log('warm-up done.')
 }
 
-init()
+init().catch(console.error)
 
 // Export the Express API
 module.exports = app;
