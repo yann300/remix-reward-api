@@ -171,7 +171,5 @@ download('https://ipfs-cluster.ethdevops.io/ipfs/QmUaaQWp49LHDdCwzirMdxYbuki6eY9
     console.log('devconnect_ams download', error, result)
 }).catch(console.error).then(console.log)
 
-init().catch(console.error)
-
 // Export the Express API
 module.exports = app;
