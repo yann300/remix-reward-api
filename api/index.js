@@ -121,8 +121,8 @@ const resolveBadge = async (contractAddress, id, res) => {
 }
 
 const warmUp = async (address) => {
-    const supply = await contracts[address].totalSupply()
-    console.log(address, supply)
+    const supply = (await contracts[address].totalSupply()).toNumber()
+    console.log('totalSupply', address, supply)
     for (const id = 0; id < supply; id++) {
         await resolveBadge(address, id)
     }
