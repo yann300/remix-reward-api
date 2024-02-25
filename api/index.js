@@ -149,7 +149,7 @@ app.get('/cache', cors(), async (req,res) => {
     res.status(200).json({ done: 'done'})
 })
 
-app.get('/cache', cors(), async (req,res) => {
+app.get('/init', cors(), async (req,res) => {
     res.status(200).json(cache)
 })
 
