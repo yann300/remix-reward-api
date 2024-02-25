@@ -120,7 +120,7 @@ const resolveBadge = async (contractAddress, id, res) => {
     res && res.status(200).json(metadata)    
 }
 
-const warmUp = async (contract address) => {
+const warmUp = async (address) => {
     const supply = await contracts[address].totalSupply()
     console.log(address, supply)
     for (const id = 0; id < supply; id++) {
@@ -162,8 +162,10 @@ download('https://ipfs-cluster.ethdevops.io/ipfs/QmUaaQWp49LHDdCwzirMdxYbuki6eY9
 }).catch(console.error).then(console.log)
 
 const init = async  () => {
+    console.log('warming up...')
     await warmUp('0x5d470270e889b61c08C51784cDC73442c4554011')
     await warmUp('0x2bC16Bf30435fd9B3A3E73Eb759176C77c28308D')
+    console.log('warm-up done.')
 }
 
 init()
