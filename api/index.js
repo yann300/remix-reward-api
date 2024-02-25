@@ -145,7 +145,6 @@ app.get('/api-scroll/:id', cors(), async (req,res) => {
 })
 
 app.get('/cache', cors(), async (req,res) => {
-    await init()
     res.status(200).json(cache)
 })
 
