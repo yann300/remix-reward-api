@@ -149,7 +149,11 @@ app.get('/cache', cors(), async (req,res) => {
     res.status(200).json({ done: 'done'})
 })
 
-app.get('/init', cors(), async (req,res) => {
+app.get('/warmup', cors(), async (req,res) => {
+    console.log('warming up...')
+    await warmUp('0x5d470270e889b61c08C51784cDC73442c4554011')
+    await warmUp('0x2bC16Bf30435fd9B3A3E73Eb759176C77c28308D')
+    console.log('warm-up done.')
     res.status(200).json(cache)
 })
 
@@ -166,13 +170,6 @@ download('https://ipfs-cluster.ethdevops.io/ipfs/QmYbt5paBZiy2h4TVV8qHrLodiyqMBe
 download('https://ipfs-cluster.ethdevops.io/ipfs/QmUaaQWp49LHDdCwzirMdxYbuki6eY9TBPZVvU7ZcQcJKE', '/tmp/devconnect_ams.png', (error, result) => {
     console.log('devconnect_ams download', error, result)
 }).catch(console.error).then(console.log)
-
-const init = async  () => {
-    console.log('warming up...')
-    await warmUp('0x5d470270e889b61c08C51784cDC73442c4554011')
-    await warmUp('0x2bC16Bf30435fd9B3A3E73Eb759176C77c28308D')
-    console.log('warm-up done.')
-}
 
 init().catch(console.error)
 
