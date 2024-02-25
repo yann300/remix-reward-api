@@ -149,7 +149,7 @@ app.get('/cache', cors(), async (req,res) => {
     res.status(200).json(cache)
 })
 
-const warmup = () => {
+const warmup = async () => {
     console.log('warming up...')
     await warmUp('0x5d470270e889b61c08C51784cDC73442c4554011')
     await warmUp('0x2bC16Bf30435fd9B3A3E73Eb759176C77c28308D')
