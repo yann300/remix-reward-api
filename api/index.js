@@ -85,14 +85,15 @@ const fileHashOverrides = {
 }
 
 const resolveBadge = async (contractAddress, id, res) => {
-    chain = chains[contractAddress]
-    provider = providers[contractAddress]
+    const chain = chains[contractAddress]
+    const provider = providers[contractAddress]
+    const contract = contracts[contractAddress]
+    
     if (cache[contractAddress + '_' + id]) {
         res && res.status(200).json(cache[contractAddress + '_' + id])
         return 
     }
     
-    let contract = new ethers.Contract(contractAddress, abi, provider)
     const data = await contract.tokensData(parseInt(id))
     console.log(data)
     let fileName = 'badge_' + contractAddress + '_' + id + '.png'
