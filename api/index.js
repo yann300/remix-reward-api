@@ -4,6 +4,7 @@ var cors = require('cors')
 const multihash = require('multihashes') 
 var https = require('https')
 var fs = require('fs')
+var { abi } = require('./abi')
 
 
 const { ethers } = require('ethers')
@@ -18,8 +19,12 @@ const providers = {
     '0x2bC16Bf30435fd9B3A3E73Eb759176C77c28308D': new ethers.providers.StaticJsonRpcProvider('https://scroll-mainnet.chainstacklabs.com')
 }
 
+const contracts = {
+    '0x5d470270e889b61c08C51784cDC73442c4554011': new ethers.Contract('0x5d470270e889b61c08C51784cDC73442c4554011', abi, providers['0x5d470270e889b61c08C51784cDC73442c4554011'])
+    '0x2bC16Bf30435fd9B3A3E73Eb759176C77c28308D': new ethers.Contract('0x2bC16Bf30435fd9B3A3E73Eb759176C77c28308D', abi, providers['0x2bC16Bf30435fd9B3A3E73Eb759176C77c28308D'])
+}
+
 app.use(express.json())
-// fs.mkdir('./tmp', console.log)
 
 app.get('/', (req,res) => {
     res.status(200).json({})
@@ -79,7 +84,7 @@ const fileHashOverrides = {
     'Devconnector': 'devconnect_ams.png'
 }
 
-const apiEndpoint = async (contractAddress, id, res) => {
+const resolveBadge = async (contractAddress, id, res) => {
     chain = chains[contractAddress]
     provider = providers[contractAddress]
     if (cache[contractAddress + '_' + id]) {
@@ -112,23 +117,30 @@ const apiEndpoint = async (contractAddress, id, res) => {
     await download('https://ipfs-cluster.ethdevops.io/ipfs/' + toBase58(data.hash), '/tmp/' + fileName, (error, result) => {
         console.error(error, result)
     })
-    res && res.status(200).json(metadata)   
-    
+    res && res.status(200).json(metadata)    
+}
+
+const warmUp = async (contract address) => {
+    const supply = await contracts[address].totalSupply()
+    console.log(address, supply)
+    for (const id = 0; id < supply; id++) {
+        await resolveBadge(address, id)
+    }
 }
 
 app.get('/api/:id', cors(), async (req,res) => {
     // default is Optimism
-    await apiEndpoint('0x5d470270e889b61c08C51784cDC73442c4554011', req.params.id, res)
+    await resolveBadge('0x5d470270e889b61c08C51784cDC73442c4554011', req.params.id, res)
 })
 
 app.get('/api-optimism/:id', cors(), async (req,res) => {
     // default is Optimism
-    await apiEndpoint('0x5d470270e889b61c08C51784cDC73442c4554011', req.params.id, res)
+    await resolveBadge('0x5d470270e889b61c08C51784cDC73442c4554011', req.params.id, res)
 })
 
 app.get('/api-scroll/:id', cors(), async (req,res) => {
     // Scroll network    
-    await apiEndpoint('0x2bC16Bf30435fd9B3A3E73Eb759176C77c28308D', req.params.id, res)
+    await resolveBadge('0x2bC16Bf30435fd9B3A3E73Eb759176C77c28308D', req.params.id, res)
 })
 
 app.get('/cache', cors(), async (req,res) => {
@@ -148,6 +160,13 @@ download('https://ipfs-cluster.ethdevops.io/ipfs/QmYbt5paBZiy2h4TVV8qHrLodiyqMBe
 download('https://ipfs-cluster.ethdevops.io/ipfs/QmUaaQWp49LHDdCwzirMdxYbuki6eY9TBPZVvU7ZcQcJKE', '/tmp/devconnect_ams.png', (error, result) => {
     console.log('devconnect_ams download', error, result)
 }).catch(console.error).then(console.log)
+
+const init = async  () => {
+    await warmUp('0x5d470270e889b61c08C51784cDC73442c4554011')
+    await warmUp('0x2bC16Bf30435fd9B3A3E73Eb759176C77c28308D')
+}
+
+init()
 
 // Export the Express API
 module.exports = app;
