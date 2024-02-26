@@ -70,6 +70,7 @@ const mainnet = new ethers.providers.StaticJsonRpcProvider(
 )
 app.get('/ens/:address', cors(), async (req, res) => {
     if (cache['ens_' + req.params.address] && cache['ens_' + req.params.address].queried) {
+        console.log('using cache', req.params.address)
         res.status(200).json({ name: cache['ens_' + req.params.address].name })
         return
     }
@@ -89,6 +90,7 @@ const resolveBadge = async (contractAddress, id, res) => {
     const contract = contracts[contractAddress]
     
     if (cache[contractAddress + '_' + id]) {
+        console.log('using cache', contractAddress, id)
         res && res.status(200).json(cache[contractAddress + '_' + id])
         return 
     }
