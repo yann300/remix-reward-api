@@ -5,7 +5,7 @@ const multihash = require('multihashes')
 var https = require('https')
 var fs = require('fs')
 var abi = require('./abi')
-var cache = require('./abi')
+var cache = require('./cache')
 cache = JSON.parse(cache)
 
 const { ethers } = require('ethers')
