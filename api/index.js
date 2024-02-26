@@ -159,7 +159,7 @@ app.get('/warmup', cors(), async (req,res) => {
     res.status(200).json({status: 'started' })
 })
 
-app.listen(8888, async () => {
+app.listen(process.env.PORT || 8081, async () => {
     console.log("listening...")
 })
 
