@@ -5,7 +5,8 @@ const multihash = require('multihashes')
 var https = require('https')
 var fs = require('fs')
 var abi = require('./abi')
-
+var cache = require('./abi')
+cache = JSON.parse(cache)
 
 const { ethers } = require('ethers')
 
@@ -35,8 +36,6 @@ const toBase58 = (contentHash) => {
     let buf = multihash.fromHexString(hex);
     return multihash.toB58String(buf);
 }
-
-const cache = {}
 
 const download = (url, dest, cb) => {
     return new Promise((resolve, reject) => {
@@ -160,7 +159,7 @@ app.get('/warmup', cors(), async (req,res) => {
     res.status(200).json({status: 'started' })
 })
 
-app.listen(process.env.PORT || 8081, async () => {
+app.listen(8888, async () => {
     console.log("listening...")
 })
 
