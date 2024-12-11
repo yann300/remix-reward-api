@@ -70,6 +70,7 @@ const mainnet = new ethers.providers.StaticJsonRpcProvider(
 )
 app.get('/ens/:address', cors(), async (req, res) => {
     try {
+        console.log('querying ens')
         if (cache['ens_' + req.params.address] && cache['ens_' + req.params.address].queried) {
             console.log('using cache', req.params.address)
             res.status(200).json({ name: cache['ens_' + req.params.address].name })
@@ -79,7 +80,7 @@ app.get('/ens/:address', cors(), async (req, res) => {
         cache['ens_' + req.params.address] = { name, queried: true }
         res.status(200).json({ name })
     } catch (e) {
-        console.error(e)
+        console.log(e)
     }
 })
 
