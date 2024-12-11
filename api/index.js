@@ -69,14 +69,18 @@ const mainnet = new ethers.providers.StaticJsonRpcProvider(
   'https://mainnet.infura.io/v3/1b3241e53c8d422aab3c7c0e4101de9c',
 )
 app.get('/ens/:address', cors(), async (req, res) => {
-    if (cache['ens_' + req.params.address] && cache['ens_' + req.params.address].queried) {
-        console.log('using cache', req.params.address)
-        res.status(200).json({ name: cache['ens_' + req.params.address].name })
-        return
+    try {
+        if (cache['ens_' + req.params.address] && cache['ens_' + req.params.address].queried) {
+            console.log('using cache', req.params.address)
+            res.status(200).json({ name: cache['ens_' + req.params.address].name })
+            return
+        }
+        const name = await mainnet.lookupAddress(req.params.address)
+        cache['ens_' + req.params.address] = { name, queried: true }
+        res.status(200).json({ name })
+    } catch (e) {
+        console.error(e)
     }
-    const name = await mainnet.lookupAddress(req.params.address)
-    cache['ens_' + req.params.address] = { name, queried: true }
-    res.status(200).json({ name })
 })
 
 const fileHashOverrides = {
