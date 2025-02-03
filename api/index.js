@@ -173,6 +173,10 @@ app.get('/warmup', cors(), async (req,res) => {
     res.status(200).json({status: 'started' })
 })
 
+app.get('/cache', cors(), async (req,res) => {
+    res.status(200).json(cache)
+})
+
 app.listen(process.env.PORT || 8081, async () => {
     console.log("listening...")
 })
