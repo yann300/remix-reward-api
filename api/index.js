@@ -68,20 +68,19 @@ app.get('/badge/:filename', cors(), async (req, res) => {
 const mainnet = new ethers.providers.StaticJsonRpcProvider(
   'https://mainnet.infura.io/v3/1b3241e53c8d422aab3c7c0e4101de9c',
 )
-app.get('/ens/:address', cors(), async (req, res) => {
-    try {
-        console.log('querying ens')
-        if (cache['ens_' + req.params.address] && cache['ens_' + req.params.address].queried) {
-            console.log('using cache', req.params.address)
-            res.status(200).json({ name: cache['ens_' + req.params.address].name })
-            return
-        }
-        const name = await mainnet.lookupAddress(req.params.address)
-        cache['ens_' + req.params.address] = { name, queried: true }
-        res.status(200).json({ name })
-    } catch (e) {
-        console.log(e)
+
+const ensResolve = async (address) => {
+    if (cache['ens_' + address] && cache['ens_' + address].queried) {
+        console.log('using cache', address)
+        return cache['ens_' + address].name
     }
+    const name = await mainnet.lookupAddress(address)
+    cache['ens_' + address] = { name, queried: true }
+    return name
+}
+app.get('/ens/:address', cors(), async (req, res) => {
+    const ret = ensResolve(req.params.address)
+    res.status(200).json(ret)
 })
 
 const fileHashOverrides = {
@@ -99,7 +98,7 @@ const resolveBadge = async (contractAddress, id, res) => {
         res && res.status(200).json(cache[contractAddress + '_' + id])
         return 
     }
-    
+
     const data = await contract.tokensData(parseInt(id))
     console.log(data)
     let fileName = 'badge_' + contractAddress + '_' + id + '.png'
@@ -130,9 +129,15 @@ const resolveBadge = async (contractAddress, id, res) => {
 const warmUp = async (address) => {
     const supply = (await contracts[address].totalSupply()).toNumber()
     console.log('totalSupply', address, supply)
+    const contract = contracts[address]
     for (let id = 0; id < supply; id++) {
+        console.log('warnming up', id)
         await resolveBadge(address, id)
+
+        const owner = await contract.ownerOf(parseInt(id))
+        await ensResolve(owner)
     }
+    fs.writeFileSync('./warmup.json', JSON.stringify(cache))
 }
 
 app.get('/api/:id', cors(), async (req,res) => {
@@ -160,6 +165,8 @@ const warmup = async () => {
     await warmUp('0x2bC16Bf30435fd9B3A3E73Eb759176C77c28308D')
     console.log('warm-up done.')
 }
+
+// warmup()
 
 app.get('/warmup', cors(), async (req,res) => {
     warmup()
