@@ -76,7 +76,7 @@ const ensResolve = async (address) => {
     }
     const name = await mainnet.lookupAddress(address)
     cache['ens_' + address] = { name, queried: true }
-    return name
+    return { name, queried: true }
 }
 app.get('/ens/:address', cors(), async (req, res) => {
     const ret = ensResolve(req.params.address)
